@@ -31,7 +31,7 @@ as summarized in Table~\ref{tab:algorithms.summary}.
 \begin{codeblock}
 #include <initializer_list>
 
-namespace std {
+namespace std { @\newtxt{namespace experimental \{ namespace ranges_v1 \{}@
   namespace tag {
     // \ref{alg.tagspec}, tag specifiers~(See \ref{taggedtup.tagged}):
     struct input;
@@ -1173,7 +1173,7 @@ namespace std {
     requires Sortable<IteratorType<Rng>, Comp, Proj>@\newtxt{()}@
     bool
       prev_permutation(Rng&& rng, Comp comp = Comp{}, Proj proj = Proj{});
-}
+}@\newtxt{\}\}}@
 \end{codeblock}
 \end{addedblock}
 

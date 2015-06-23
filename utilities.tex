@@ -5,27 +5,49 @@
 \setcounter{section}{1}
 \rSec1[utility]{Utility components}
 
+\ednote{``\tcode{swap}'' is a customization point found by Argument-Dependent Lookup. Due to the nature of
+ADL, the \tcode{swap} in namespace \tcode{std} would be considered if either argument has namespace \tcode{std}
+as an associated type. If \tcode{std::swap} remains unconstrained, then the \tcode{Swappable} concept will
+erroneously return true for some types that are not in fact swappable. Below, we suggest adding constraints
+directly to the overloads of \tcode{swap} in namespace \tcode{std} rather than defining new constrained
+overloads of \tcode{swap} in namespace \tcode{std::experimental::ranges_v1}. The precise mechanism by which
+\tcode{swap} is constrained such that it is usable in build environments lacking the concepts language feature
+is unspecified.}
+
 \ednote{Change the \tcode{<utility>} synopsis as follows:}
 
 \begin{codeblock}
+@\newtxt{namespace std \{}@
   // \ref{utility.swap}, swap:
   template<class T>
-    @\added{requires MoveConstructible<T>\newtxt{()} \&\& MoveAssignable<T>\newtxt{()} \&\& Destructible<T>\newtxt{()}}@
+    @\added{requires \newtxt{experimental::ranges_v1::}MoveConstructible<T>\newtxt{()} \&\&}@
+      @\added{\newtxt{experimental::ranges_v1::}MoveAssignable<T>\newtxt{()} \&\& \newtxt{experimental::ranges_v1::}Destructible<T>\newtxt{()}}@
   void swap(T& a, T& b) noexcept(@\seebelow@);
   template <class T, size_t N>
     @\added{requires requires (remove_all_extents_t<T>\& t) \{ swap(t, t); \}}@
   void swap(T (&a)[N], T (&b)[N]) noexcept(noexcept(swap(*a, *b)));}
+@\newtxt{\}}@
+\end{codeblock}
+
+\ednote{Change the \tcode{<experimental/ranges_v1/utility>} synopsis as follows:}
+
+\begin{codeblock}
+@\newtxt{namespace std \{ namespace experimental \{ namespace ranges_v1 \{}@
+  @\newtxt{// \ref{utility.swap}, swap:}@
+  @\newtxt{using std::swap;}@
 
   // \ref{utility.exchange}, exchange:
   template <class T, class U=T>
     @\added{requires MoveConstructible<T>\newtxt{()} \&\& Assignable<T, U>\newtxt{()} \&\& Destructible<T>\newtxt{()}}@
   T exchange(T& obj, U&& new_val);
+@\newtxt{\}\}\}}@
 \end{codeblock}
 
-\ednote{To the end of the \tcode{<utility>} synopsis, add the following:}
+\ednote{To the end of the \tcode{<\newtxt{experimental/ranges_v1/}utility>} synopsis, add the following:}
 
 {\color{addclr}
 \begin{codeblock}
+@\newtxt{namespace std \{ namespace experimental \{ namespace ranges_v1 \{}@
   // \ref{taggedtup.tagged}, struct with named accessors
   template <class Base, class... Types> struct tagged;
 
@@ -40,16 +62,21 @@
 
   // \ref{pairs.tagged}, tagged pairs
   template <class T1, class T2> using tagged_pair = @\seebelow@;
+@\newtxt{\}\}\}}@
 \end{codeblock}
 }
 
 \setcounter{subsection}{1}
 \rSec2[utility.swap]{swap}
 
+\ednote{The following edits to the two \tcode{swap} overloads are to be applied to the versions in
+namespace \tcode{std}.}
+
 \indexlibrary{\idxcode{swap}}%
 \begin{itemdecl}
 template<class T>
-  @\added{requires MoveConstructible<T>\newtxt{()} \&\& MoveAssignable<T>\newtxt{()} \&\& Destructible<T>\newtxt{()}}@
+  @\added{requires \newtxt{experimental::ranges_v1::}MoveConstructible<T>\newtxt{()} \&\&}@
+    @\added{\newtxt{experimental::ranges_v1::}MoveAssignable<T>\newtxt{()} \&\& \newtxt{experimental::ranges_v1::}Destructible<T>\newtxt{()}}@
 void swap(T& a, T& b) noexcept(@\seebelow@);
 \end{itemdecl}
 
@@ -62,6 +89,20 @@ is_nothrow_move_constructible<T>::value &&
 is_nothrow_move_assignable<T>::value
 \end{codeblock}
 
+{\color{newclr}
+\pnum
+\remark
+A library implementor is free to remove the \tcode{requires} clause so long as
+this function does not participate in overload resolution if the following
+is false
+\begin{codeblock}
+is_move_constructible<T>::value &&
+is_move_assignable<T>::value &&
+is_destructible<T>::value
+\end{codeblock}
+\ednote{This is to support compilation environments that do not support concepts.}
+}
+
 \removed{
 \pnum
 \requires
@@ -71,6 +112,20 @@ shall be
 \tcode{MoveConstructible} (Table~\ref{moveconstructible})
 and
 \tcode{MoveAssignable} (Table~\ref{moveassignable}).
+}
+
+{\color{newclr}
+\pnum
+\requires
+The expressions
+\begin{codeblock}
+T tmp(move(a));
+a = move(b);
+b = move(tmp);
+\end{codeblock}
+shall have the effect of exchanging the values stored in the two locations.
+\enternote For example, objects \tcode{a} and \tcode{b} may not be reference-like
+types like \tcode{reference_wrapper}~(\cxxref{refwrap}) that alias each other.\exitnote
 }
 
 \pnum
@@ -86,11 +141,21 @@ void swap(T (&a)[N], T (&b)[N]) noexcept(noexcept(swap(*a, *b)));}
 \end{itemdecl}
 
 \begin{itemdescr}
-\removed{
 \pnum
 \requires
-\tcode{a[i]} shall be swappable with~(\ref{swappable.requirements}) \tcode{b[i]}
+\tcode{a[i]} shall be swappable with~(\ref{concepts.lib.corelang.swappable}) \tcode{b[i]}
 for all \tcode{i} in the range \range{0}{N}.
+
+{\color{newclr}
+\pnum
+\remark
+A library implementor is free to remove the \tcode{requires} clause so long as
+this function does not participate in overload resolution if the following
+expression is ill-formed
+\begin{codeblock}
+swap(declval<remove_all_extents_t<T>&>(), declval<remove_all_extents_t<T>&>())
+\end{codeblock}
+\ednote{This is to support compilation environments that do not support concepts.}
 }
 
 \pnum

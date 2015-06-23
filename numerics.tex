@@ -15,7 +15,7 @@
 
 \begin{addedblock}
 \begin{codeblock}
-namespace std {
+namespace std { @\newtxt{namespace experimental \{ namespace ranges_v1 \{}@
   template <class G>
   concept bool UniformRandomNumberGenerator@\newtxt{() \{}\oldtxt{ =}@
     @\newtxt{return}@ requires(G g) {
@@ -26,7 +26,7 @@ namespace std {
       { G::max() } -> Same<ResultType<G>>;
     };
   @\newtxt{\}}@
-}
+}@\newtxt{\}\}}@
 \end{codeblock}
 \end{addedblock}
 
