@@ -23,11 +23,17 @@ as summarized in Table~\ref{tab:iterators.lib.summary}.
 
 \begin{libsumtab}{Iterators library summary}{tab:iterators.lib.summary}
 \ref{iterator.requirements} & Requirements        &                           \\ \rowsep
-\ref{iterator.primitives} & Iterator primitives   &   \tcode{<iterator>}      \\
+\ref{iterator.primitives} & Iterator primitives   &   \tcode{<\newtxt{experimental/range_v1/}iterator>}      \\
 \ref{predef.iterators} & Predefined iterators     &                           \\
 \ref{stream.iterators} & Stream iterators         &                           \\
-\added{\ref{iterables}} & Ranges                  &                           \\
+\added{\ref{iterables}} & \added{Ranges}          &                           \\
 \end{libsumtab}
+
+{\color{newclr}
+\pnum
+Unless otherwise stated, all the concepts, types, and functions in this chapter
+are defined in the \tcode{std::\brk{}experimental::ranges_v1} namespace.
+}
 
 \rSec1[iterator.requirements]{Iterator requirements}
 
@@ -324,14 +330,14 @@ The \tcode{value_type} class template may be specialized on user-defined types.
 
 \pnum
 When instantiated with a type \tcode{I} that has a nested type \tcode{value_type},
-\tcode{value_type<I>::type} names that type, unless it is not an object type~(\ref{basic.types}) in which case
+\tcode{value_type<I>::type} names that type, unless it is not an object type~(\cxxref{basic.types}) in which case
 \tcode{value_type<I>} shall have no nested type \tcode{type}. \enternote Some legacy output
 iterators define a nested type named \tcode{value_type} that is an alias for \tcode{void}. These
 types are not \tcode{Readable} and have no associated value types.\exitnote
 
 \pnum
 When instantiated with a type \tcode{I} that has a nested type \tcode{element_type},
-\tcode{value_type<I>::type} names that type, unless it is not an object type~(\ref{basic.types}) in which case
+\tcode{value_type<I>::type} names that type, unless it is not an object type~(\cxxref{basic.types}) in which case
 \tcode{value_type<I>} shall have no nested type \tcode{type}. \enternote Smart pointers like
 \tcode{shared_ptr<int>} are \tcode{Readable} and have an associated value type. But a smart pointer
 like \tcode{shared_ptr<void>} is not \tcode{Readable} and has no associated value type.\exitnote
@@ -1255,7 +1261,7 @@ container constructors.}
 
 \end{addedblock}
 
-\rSec1[iterator.synopsis]{Header \tcode{<iterator>}\ synopsis}
+\rSec1[iterator.synopsis]{Header \tcode{<experimental/range_v1/iterator>}\ synopsis}
 
 \indexlibrary{\idxhdr{iterator}}%
 \begin{codeblock}
@@ -1617,16 +1623,18 @@ namespace std { @\newtxt{namespace experimental \{ namespace ranges_v1 \{}@
     class ostreambuf_iterator;
 
   // \ref{iterator.range}, range access:
-  template <class C> auto begin(C& c) -> decltype(c.begin());
-  template <class C> auto begin(const C& c) -> decltype(c.begin());
-  template <class C> auto end(C& c) -> decltype(c.end());
-  template <class C> auto end(const C& c) -> decltype(c.end());
-  template <class T, size_t N> constexpr T* begin(T (&array)[N]) noexcept;
-  template <class T, size_t N> constexpr T* end(T (&array)[N]) noexcept;
-  template <class C> constexpr auto cbegin(const C& c) noexcept(noexcept(std::begin(c)))
-    -> decltype(std::begin(c));
-  template <class C> constexpr auto cend(const C& c) noexcept(noexcept(std::end(c)))
-    -> decltype(std::end(c));
+  @\oldoldtxt{template <class C> auto begin(C\& c) -> decltype(c.begin());}@
+  @\oldoldtxt{template <class C> auto begin(const C\& c) -> decltype(c.begin());}@
+  @\oldoldtxt{template <class C> auto end(C\& c) -> decltype(c.end());}@
+  @\oldoldtxt{template <class C> auto end(const C\& c) -> decltype(c.end());}@
+  @\oldoldtxt{template <class T, size_t N> constexpr T* begin(T (\&array)[N]) noexcept;}@
+  @\oldoldtxt{template <class T, size_t N> constexpr T* end(T (\&array)[N]) noexcept;}@
+  @\newtxt{using std::begin;}@
+  @\newtxt{using std::end;}@
+  template <class C> constexpr auto cbegin(const C& c) noexcept(noexcept(@\oldoldtxt{std::}@begin(c)))
+    -> decltype(@\oldoldtxt{std::}@begin(c));
+  template <class C> constexpr auto cend(const C& c) noexcept(noexcept(@\oldoldtxt{std::}@end(c)))
+    -> decltype(@\oldoldtxt{std::}@end(c));
   template <class C> auto rbegin(C& c) -> decltype(c.rbegin());
   template <class C> auto rbegin(const C& c) -> decltype(c.rbegin());
   template <class C> auto rend(C& c) -> decltype(c.rend());
@@ -1635,8 +1643,8 @@ namespace std { @\newtxt{namespace experimental \{ namespace ranges_v1 \{}@
   template <class T, size_t N> reverse_iterator<T*> rend(T (&array)[N]);
   template <class E> reverse_iterator<const E*> rbegin(initializer_list<E> il);
   template <class E> reverse_iterator<const E*> rend(initializer_list<E> il);
-  template <class C> auto crbegin(const C& c) -> decltype(std::rbegin(c));
-  template <class C> auto crend(const C& c) -> decltype(std::rend(c));
+  template <class C> auto crbegin(const C& c) -> decltype(@\oldoldtxt{std::}\newtxt{ranges_v1::}@rbegin(c));
+  template <class C> auto crend(const C& c) -> decltype(@\oldoldtxt{std::}\newtxt{ranges_v1::}@rend(c));
 \end{codeblock}
 \begin{addedblock}
 \begin{codeblock}
@@ -1648,6 +1656,17 @@ namespace std { @\newtxt{namespace experimental \{ namespace ranges_v1 \{}@
 \begin{codeblock}
 }@\newtxt{\}\}}@
 \end{codeblock}
+
+{\color{newclr}
+\begin{codeblock}
+namespace std {
+  // \ref{iterator.stdtraits}, iterator traits
+  template <experimental::ranges_v1::WeakIterator I>
+    struct iterator_traits;
+}
+\end{codeblock}
+}
+
 
 \rSec1[iterator.primitives]{Iterator primitives}
 
@@ -1826,7 +1845,7 @@ Users may specialize \tcode{difference_type} on user-defined types.
   template <class T>
     requires requires { typename T::iterator_category; }
   struct iterator_category<T> {
-    using type = typename T::iterator_category;
+    using type = @\oldtxt{typename T::iterator_category}\seebelow@;
   };
   template <class T>
     using IteratorCategory = typename iterator_category<T>::type;
@@ -1835,6 +1854,25 @@ Users may specialize \tcode{difference_type} on user-defined types.
 \pnum
 Users may specialize \tcode{iterator_category} on user-defined types.
 \end{addedblock}
+
+{\color{newclr}
+\pnum
+If type \tcode{T} has a nested type \tcode{iterator_category}, then the
+type \tcode{iterator_category<T>::type} is computed as follows:
+\begin{itemize}
+\item If \tcode{T::iterator_category} is the same as or derives from \tcode{std::random_access_iterator_tag},
+      \tcode{iterator_category<T>::type} is \tcode{ranges_v1::random_access_iterator_tag}.
+\item If \tcode{T::iterator_category} is the same as or derives from \tcode{std::bidirectional_iterator_tag},
+      \tcode{iterator_category<T>::type} is \tcode{ranges_v1::bidirectional_iterator_tag}.
+\item If \tcode{T::iterator_category} is the same as or derives from \tcode{std::forward_iterator_tag},
+      \tcode{iterator_category<T>::type} is \tcode{ranges_v1::forward_iterator_tag}.
+\item If \tcode{T::iterator_category} is the same as or derives from \tcode{std::input_iterator_tag},
+      \tcode{iterator_category<T>::type} is \tcode{ranges_v1::input_iterator_tag}.
+\item If \tcode{T::iterator_category} is the same as or derives from \tcode{std::output_iterator_tag},
+      \tcode{iterator_category<T>} has no nested \tcode{type}.
+\item Otherwise, \tcode{iterator_category<T>::type} is \tcode{T::iterator_category}
+\end{itemize}
+}
 
 \begin{removedblock}
 \pnum
@@ -1923,6 +1961,104 @@ void reverse(@\changed{BidirectionalIterator}{I}@ first, @\changed{Bidirectional
 }
 \end{codeblock}
 \exitexample
+
+{\color{newclr}
+\rSec2[iterator.stdtraits]{Standard iterator traits}
+
+\pnum
+To facilitate interoperability between new code using iterators conforming to this document
+and older code using iterators conforming to ISO/IEC 14882, three specializations of
+\tcode{std::iterator_traits} are provided to map the newer iterator categories to the
+older ones.
+
+\begin{codeblock}
+namespace std {
+  template <experimental::ranges_v1::WeakIterator Out>
+  struct iterator_traits<Out> {
+    using difference_type   = experimental::ranges_v1::DifferenceType<Out>;
+    using value_type        = @\seebelow@;
+    using reference         = @\seebelow@;
+    using pointer           = @\seebelow@;
+    using iterator_category = std::output_iterator_tag;
+  };
+\end{codeblock}
+
+\pnum
+The nested type \tcode{value_type} is computed as follows:
+\begin{itemize}
+\item If type \tcode{Out} has a nested type \tcode{value_type}, then
+      \tcode{std::iterator_traits<Out>::value_type} is \tcode{Out::value_type}.
+\item Otherwise, \tcode{std::iterator_traits<Out>::value_type} is \tcode{void}.
+\end{itemize}
+
+\pnum
+The nested type \tcode{reference} is computed as follows:
+\begin{itemize}
+\item If type \tcode{Out} has a nested type \tcode{reference}, then
+      \tcode{std::iterator_traits<Out>::reference} is \tcode{Out::\brk{}reference}.
+\item Otherwise, \tcode{std::iterator_traits<Out>::reference} is \tcode{void}.
+\end{itemize}
+
+\pnum
+The nested type \tcode{pointer} is computed as follows:
+\begin{itemize}
+\item If type \tcode{Out} has a nested type \tcode{pointer}, then
+      \tcode{std::iterator_traits<Out>::pointer} is \tcode{Out::pointer}.
+\item Otherwise, \tcode{std::iterator_traits<Out>::pointer} is \tcode{void}.
+\end{itemize}
+
+\begin{codeblock}
+  template <experimental::ranges_v1::WeakInputIterator WeakIn>
+  struct iterator_traits<WeakIn> { };
+
+  template <experimental::ranges_v1::InputIterator In>
+  struct iterator_traits<In> {
+    using difference_type   = experimental::ranges_v1::DifferenceType<In>;
+    using value_type        = experimental::ranges_v1::ValueType<In>;
+    using reference         = @\seebelow@;
+    using pointer           = @\seebelow@;
+    using iterator_category = @\seebelow@;
+  };
+}
+\end{codeblock}
+
+\pnum
+The nested type \tcode{reference} is computed as follows:
+\begin{itemize}
+\item If type \tcode{In} has a nested type \tcode{reference}, then
+      \tcode{std::iterator_traits<In>::reference} is \tcode{In::reference}.
+\item Otherwise, \tcode{std::iterator_traits<In>::reference} is
+      \tcode{experimental::ranges_v1::Reference<In>}.
+\end{itemize}
+
+\pnum
+The nested type \tcode{pointer} is computed as follows:
+\begin{itemize}
+\item If type \tcode{In} has a nested type \tcode{pointer}, then
+      \tcode{std::iterator_traits<In>::pointer} is \tcode{In::pointer}.
+\item Otherwise, \tcode{std::iterator_traits<In>::pointer} is
+      \tcode{experimental::ranges_v1::\brk{}iterator_traits<In>::\brk{}pointer}.
+\end{itemize}
+
+\pnum
+Let type \tcode{C} be \tcode{experimental::ranges_v1::IteratorCategory<In>}.
+The nested type \tcode{std::\brk{}iterator_traits<In>::\brk{}iterator_category} is computed as
+follows:
+\begin{itemize}
+\item If \tcode{C} is the same as or inherits from \tcode{std::input_iterator_tag} or
+      \tcode{std::output_iterator_tag}, \tcode{std::\brk{}iterator_traits<In>::\brk{}iterator_category}
+      is \tcode{C}.
+\item If \tcode{experimental::ranges_v1::Reference<In>} is not a reference type,
+      \tcode{std::\brk{}iterator_traits<In>::\brk{}iterator_category} is \tcode{std::input_iterator_tag}.
+\item If \tcode{C} is the same as or inherits from \tcode{experimental::\brk{}ranges_v1::\brk{}random_access_iterator_tag},
+      \tcode{std::\brk{}iterator_traits<In>::\brk{}iterator_category} is \tcode{std::random_access_iterator_tag}.
+\item If \tcode{C} is the same as or inherits from \tcode{experimental::\brk{}ranges_v1::\brk{}bidirectional_iterator_tag},
+      \tcode{std::\brk{}iterator_traits<In>::\brk{}iterator_category} is \tcode{std::bidirectional_iterator_tag}.
+\item If \tcode{C} is the same as or inherits from \tcode{experimental::\brk{}ranges_v1::\brk{}forward_iterator_tag},
+      \tcode{std::\brk{}iterator_traits<In>::\brk{}iterator_category} is \tcode{std::forward_iterator_tag}.
+\item Otherwise, \tcode{std::iterator_traits<In>::iterator_category} is \tcode{std::input_iterator_tag}.
+\end{itemize}
+}
 
 \rSec2[iterator.basic]{Basic iterator}
 
@@ -6094,7 +6230,7 @@ as summarized in Table~\ref{tab:iterables.lib.summary}.
 
 \begin{libsumtab}{Ranges library summary}{tab:iterables.lib.summary}
   \ref{iterables.requirements} & Requirements       &                           \\ \rowsep
-  \ref{iterable.primitives} & Range primitives   &   \tcode{<iterator>}      \\
+  \ref{iterable.primitives} & Range primitives   &   \tcode{<\newtxt{experimental/range_v1/}iterator>}      \\
   \ref{predef.range} & Predefined ranges            &                           \\
   \ref{stream.ranges} & Stream ranges               &                           \\
 \end{libsumtab}
@@ -6379,13 +6515,16 @@ concept bool RandomAccessRange@\newtxt{() \{}\oldtxt{ =}@
 
 \rSec1[iterator.range]{range access}
 
+{\color{oldoldclr}
 \pnum
 In addition to being available via inclusion of the \tcode{<iterator>} header,
 the function templates in \ref{iterator.range} are available when any of the following
 headers are included: \tcode{<array>}, \tcode{<deque>}, \tcode{<forward_list>},
 \tcode{<list>}, \tcode{<map>}, \tcode{<regex>}, \tcode{<set>}, \tcode{<string>},
 \tcode{<unordered_map>}, \tcode{<unordered_set>}, and \tcode{<vector>}.
+}
 
+{\color{oldoldclr}
 \indexlibrary{\idxcode{begin(C\&)}}%
 \begin{itemdecl}
 template <class C> auto begin(C& c) -> decltype(c.begin());
@@ -6427,23 +6566,24 @@ template <class T, size_t N> constexpr T* end(T (&array)[N]) noexcept;
 \pnum
 \returns \tcode{array + N}.
 \end{itemdescr}
+}
 
 \indexlibrary{\idxcode{cbegin(const C\&)}}%
 \begin{itemdecl}
-template <class C> constexpr auto cbegin(const C& c) noexcept(noexcept(std::begin(c)))
-  -> decltype(std::begin(c));
+template <class C> constexpr auto cbegin(const C& c) noexcept(noexcept(@\oldoldtxt{std::}@begin(c)))
+  -> decltype(@\oldoldtxt{std::}@begin(c));
 \end{itemdecl}
 \begin{itemdescr}
-\pnum \returns \tcode{std::begin(c)}.
+\pnum \returns \tcode{\oldoldtxt{std::}begin(c)}.
 \end{itemdescr}
 
 \indexlibrary{\idxcode{cend(const C\&)}}%
 \begin{itemdecl}
-template <class C> constexpr auto cend(const C& c) noexcept(noexcept(std::end(c)))
-  -> decltype(std::end(c));
+template <class C> constexpr auto cend(const C& c) noexcept(noexcept(@\oldoldtxt{std::}@end(c)))
+  -> decltype(@\oldoldtxt{std::}@end(c));
 \end{itemdecl}
 \begin{itemdescr}
-\pnum \returns \tcode{std::end(c)}.
+\pnum \returns \tcode{\oldoldtxt{std::}end(c)}.
 \end{itemdescr}
 
 \indexlibrary{\idxcode{rbegin(C\&)}}%
@@ -6498,16 +6638,16 @@ template <class E> reverse_iterator<const E*> rend(initializer_list<E> il);
 
 \indexlibrary{\idxcode{crbegin(const C\& c)}}%
 \begin{itemdecl}
-template <class C> auto crbegin(const C& c) -> decltype(std::rbegin(c));
+template <class C> auto crbegin(const C& c) -> decltype(@\oldoldtxt{std::}\newtxt{ranges_v1::}@rbegin(c));
 \end{itemdecl}
 \begin{itemdescr}
-\pnum \returns \tcode{std::rbegin(c)}.
+\pnum \returns \tcode{\oldoldtxt{std::}\newtxt{ranges_v1::}rbegin(c)}.
 \end{itemdescr}
 
 \indexlibrary{\idxcode{crend(const C\& c)}}%
 \begin{itemdecl}
-template <class C> auto crend(const C& c) -> decltype(std::rend(c));
+template <class C> auto crend(const C& c) -> decltype(@\oldoldtxt{std::}\newtxt{ranges_v1::}@rend(c));
 \end{itemdecl}
 \begin{itemdescr}
-\pnum \returns \tcode{std::rend(c)}.
+\pnum \returns \tcode{\oldoldtxt{std::}\newtxt{ranges_v1::}rend(c)}.
 \end{itemdescr}
