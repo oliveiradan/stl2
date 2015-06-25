@@ -10,7 +10,7 @@ This Clause describes components that \Cpp programs may use to perform
 iterations over containers (Clause \cxxref{containers}),
 streams~(\cxxref{iostream.format}),
 \removed{and} stream buffers~(\cxxref{stream.buffers})
-\added{, and ranges~(\ref{range.iterables})}.
+\added{, and ranges~(\ref{iterables})}.
 
 \pnum
 The following subclauses describe
@@ -28,12 +28,6 @@ as summarized in Table~\ref{tab:iterators.lib.summary}.
 \ref{stream.iterators} & Stream iterators         &                           \\
 \added{\ref{iterables}} & \added{Ranges}          &                           \\
 \end{libsumtab}
-
-{\color{newclr}
-\pnum
-Unless otherwise stated, all the concepts, types, and functions in this chapter
-are defined in the \tcode{std::\brk{}experimental::ranges_v1} namespace.
-}
 
 \rSec1[iterator.requirements]{Iterator requirements}
 
@@ -1565,12 +1559,6 @@ namespace std { @\newtxt{namespace experimental \{ namespace ranges_v1 \{}@
   template <WeakIterator I>
     void advance(counted_iterator<I>& i, DifferenceType<I> n);
 
-  // \ref{counted.traits.specializations} \tcode{common_type} specializations
-  template<WeakIterator I>
-    struct common_type<counted_iterator<I>, default_sentinel>;
-  template<WeakIterator I>
-    struct common_type<default_sentinel, counted_iterator<I>>;
-
   // \ref{unreachable.sentinels} Unreachable sentinels
   struct unreachable { };
   template <Iterator I>
@@ -1583,12 +1571,6 @@ namespace std { @\newtxt{namespace experimental \{ namespace ranges_v1 \{}@
   template <Iterator I>
     constexpr bool operator!=(unreachable, I const &) noexcept;
   constexpr bool operator!=(unreachable, unreachable) noexcept;
-
-  // \ref{unreachable.traits.specializations} \tcode{common_type} specializations
-  template<Iterator I>
-    struct common_type<I, unreachable>;
-  template<Iterator I>
-    struct common_type<unreachable, I>;
 
   @\newtxt{// \ref{dangling.wrappers} Dangling wrapper}@
   @\newtxt{template <class T> class dangling;}@
@@ -1663,10 +1645,36 @@ namespace std {
   // \ref{iterator.stdtraits}, iterator traits
   template <experimental::ranges_v1::WeakIterator I>
     struct iterator_traits;
-}
+  template <experimental::ranges_v1::WeakInputIterator I>
+    struct iterator_traits;
+  template <experimental::ranges_v1::InputIterator I>
+    struct iterator_traits;
+\end{codeblock}}{\color{addclr}\begin{codeblock}
+  // \ref{counted.traits.specializations} \tcode{common_type} specializations
+  template<@\newtxt{experimental::ranges_v1::}@WeakIterator I>
+    struct common_type<@\newtxt{experimental::ranges_v1::}@counted_iterator<I>,
+                       @\newtxt{experimental::ranges_v1::}@default_sentinel>;
+  template<@\newtxt{experimental::ranges_v1::}@WeakIterator I>
+    struct common_type<@\newtxt{experimental::ranges_v1::}@default_sentinel,
+                       @\newtxt{experimental::ranges_v1::}@counted_iterator<I>>;
+
+  // \ref{unreachable.traits.specializations} \tcode{common_type} specializations
+  template<@\newtxt{experimental::ranges_v1::}@Iterator I>
+    struct common_type<I, @\newtxt{experimental::ranges_v1::}@unreachable>;
+  template<@\newtxt{experimental::ranges_v1::}@Iterator I>
+    struct common_type<@\newtxt{experimental::ranges_v1::}@unreachable, I>;
+@{\color{newclr}\}}@
 \end{codeblock}
 }
 
+{\color{newclr}
+\pnum
+Any entities declared or defined in namespace \tcode{std} in header \tcode{<iterator>}
+that are not already defined in namespace \tcode{std::experimental::ranges_v1} in header
+\tcode{<experimental/ranges_v1/iterator>} are imported with
+\grammarterm{using-declaration}{s}~(\cxxref{namespace.udecl}). \ednote{There are no such
+entities, but there may be in the future.}
+}
 
 \rSec1[iterator.primitives]{Iterator primitives}
 
