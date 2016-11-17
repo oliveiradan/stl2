@@ -831,7 +831,7 @@ callable objects~(\cxxref{func.def}) as arguments.
   template <class> struct indirect_result_of { };
 
   template <class F, class... Is>
-    requires IndirectCallable<F, Is...>()
+    requires IndirectCallable<decay_t<F>, Is...>()
   struct indirect_result_of<F(Is...)> :
     result_of<F(reference_t<Is>...)> { };
 
